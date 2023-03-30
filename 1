@@ -1,0 +1,891 @@
+// Define the VIT app object
+const VIT = {};
+
+// Define the app's data
+VIT.data = {
+  currentUser: null,
+  businesses: [],
+  categories: [],
+  selectedCategory: null,
+  notifications: []
+};
+
+// Define the app's functions
+VIT.functions = {
+  // Function for creating a new individual account
+  createIndividualAccount: function(firstName, lastName, username, email, password) {
+    // Create a new user object
+    const user = {
+      type: 'individual',
+      firstName: firstName,
+      lastName: lastName,
+      username: username,
+      email: email,
+      password: password
+    };
+    
+    // Save the user object to the app's data
+    VIT.data.currentUser = user;
+    
+    // Send a confirmation email to the user's email address
+    VIT.functions.sendConfirmationEmail(email);
+  },
+  
+  // Function for creating a new business account
+  createBusinessAccount: function(name, briefDescription, longDescription, location, phone, email, password) {
+    // Create a new business object
+    const business = {
+      type: 'business',
+      name: name,
+      briefDescription: briefDescription,
+      longDescription: longDescription,
+      location: location,
+      phone: phone,
+      email: email,
+      password: password
+    };
+    
+    // Save the business object to the app's data
+    VIT.data.currentUser = business;
+    
+    // Send a confirmation email to the business's email address
+    VIT.functions.sendConfirmationEmail(email);
+  },
+  
+  // Function for sending a confirmation email
+  sendConfirmationEmail: function(email) {
+    // Code to send a confirmation email goes here
+  },
+  
+  // Function for browsing businesses by category
+  browseByCategory: function(category) {
+    // Set the selected category in the app's data
+    VIT.data.selectedCategory = category;
+    
+    // Filter the list of businesses based on the selected category
+    const filteredBusinesses = VIT.data.businesses.filter(business => {
+      return business.categories.includes(category);
+    });
+    
+    // Display the filtered list of businesses
+    VIT.functions.displayBusinessList(filteredBusinesses);
+  },
+  
+  // Function for displaying a list of businesses
+  displayBusinessList: function(businesses) {
+    // Code to display the list of businesses goes here
+  },
+  
+  // Function for leaving a review for a business
+  leaveReview: function(business, rating, comment) {
+    // Code to save the review to the app's data goes here
+  },
+  
+  // Function for sending a message to a business
+  sendMessage: function(business, message) {
+    // Code to send the message to the business goes here
+  },
+  
+  // Function for searching for a business
+  searchBusiness: function(searchTerm) {
+    // Code to search for businesses goes here
+  },
+  
+  // Function for creating an advertisement for a business
+  createAdvertisement: function(business, name, description, category, image) {
+    // Code to create the advertisement goes here
+  },
+  
+  // Function for viewing analytics for a business
+  viewAnalytics: function(business) {
+    // Code to display the analytics goes here
+  },
+  
+  // Function for sending a push notification
+  sendNotification: function(notification) {
+    // Code to send the notification goes here
+  }
+};
+
+// Initialize the app
+VIT.init = function() {
+  // Code to initialize the app goes here
+};
+
+// Call the init function when the app is ready
+document.addEventListener('deviceready', init);
+
+function init() {
+// Check if the user is logged in
+if (isLoggedIn()) {
+// If the user is logged in, show the home screen
+showHomeScreen();
+} else {
+// If the user is not logged in, show the login screen
+showLoginScreen();
+}
+
+// Add event listeners to the login and registration forms
+const loginForm = document.getElementById('login-form');
+loginForm.addEventListener('submit', handleLogin);
+
+const registrationForm = document.getElementById('registration-form');
+registrationForm.addEventListener('submit', handleRegistration);
+
+// Add event listeners to the navigation menu
+const menu = document.getElementById('menu');
+menu.addEventListener('click', handleMenuClick);
+}
+
+function isLoggedIn() {
+// Check if there is a logged in user
+const loggedInUser = localStorage.getItem('loggedInUser');
+return loggedInUser !== null;
+}
+
+function showHomeScreen() {
+// Show the home screen
+const homeScreen = document.getElementById('home-screen');
+homeScreen.classList.remove('hidden');
+
+// Hide the login and registration screens
+const loginScreen = document.getElementById('login-screen');
+loginScreen.classList.add('hidden');
+
+const registrationScreen = document.getElementById('registration-screen');
+registrationScreen.classList.add('hidden');
+
+// Populate the home screen with data
+populateHomeScreen();
+}
+
+function showLoginScreen() {
+// Show the login screen
+const loginScreen = document.getElementById('login-screen');
+loginScreen.classList.remove('hidden');
+
+// Hide the home and registration screens
+const homeScreen = document.getElementById('home-screen');
+homeScreen.classList.add('hidden');
+
+const registrationScreen = document.getElementById('registration-screen');
+registrationScreen.classList.add('hidden');
+}
+
+function showRegistrationScreen() {
+// Show the registration screen
+const registrationScreen = document.getElementById('registration-screen');
+registrationScreen.classList.remove('hidden');
+
+// Hide the home and login screens
+const homeScreen = document.getElementById('home-screen');
+homeScreen.classList.add('hidden');
+
+const loginScreen = document.getElementById('login-screen');
+loginScreen.classList.add('hidden');
+}
+
+function handleLogin(event) {
+event.preventDefault();
+
+// Get the form data
+const formData = new FormData(event.target);
+const email = formData.get('email');
+const password = formData.get('password');
+
+// Check if the email and password are valid
+if (!isValidEmail(email)) {
+alert('Please enter a valid email address.');
+return;
+}
+
+if (!isValidPassword(password)) {
+alert('Please enter a valid password.');
+return;
+}
+
+// Check if the user exists and the password is correct
+const user = getUserByEmail(email);
+if (user && user.password === password) {
+// If the user exists and the password is correct, log them in
+localStorage.setItem('loggedInUser', JSON.stringify(user));
+showHomeScreen();
+} else {
+// If the user does not exist or the password is incorrect, show an error message
+alert('Invalid email or password.');
+}
+}
+
+function handleRegistration(event) {
+event.preventDefault();
+
+// Get the form data
+const formData = new FormData(event.target);
+const firstName = formData.get('first-name');
+const lastName = formData.get('last-name');
+const email = formData.get('email');
+const password = formData.get('password');
+
+// Check if the email and password are valid
+if (!isValidEmail(email)) {
+alert('Please enter a valid email address.');
+return;
+}
+
+if (!isValidPassword(password)) {
+alert('Please enter a valid password');
+return;
+}
+
+// Check if email is valid
+if (!isValidEmail(email)) {
+alert('Please enter a valid email');
+return;
+}
+
+// Store user data in localStorage
+const userData = {
+firstName,
+lastName,
+username,
+email,
+password,
+mode
+};
+localStorage.setItem('userData', JSON.stringify(userData));
+
+// Redirect to appropriate page based on mode
+if (mode === 'individual') {
+window.location.href = 'individual.html';
+} else if (mode === 'business') {
+window.location.href = 'business.html';
+}
+}
+
+// Helper function to validate password
+function isValidPassword(password) {
+const passwordRegex = /^(?=.\d)(?=.[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
+return passwordRegex.test(password);
+}
+
+// Helper function to validate email
+function isValidEmail(email) {
+const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
+return emailRegex.test(email);
+}
+
+// Business advertisement creator page
+function createAdvertisement() {
+// Get user data from localStorage
+const userData = JSON.parse(localStorage.getItem('userData'));
+
+// Autofill business information
+document.getElementById('businessName').value = userData.businessName;
+document.getElementById('briefDescription').value = userData.briefDescription;
+document.getElementById('longDescription').value = userData.longDescription;
+document.getElementById('businessLocation').value = userData.businessLocation;
+document.getElementById('businessNumber').value = userData.businessNumber;
+document.getElementById('businessEmail').value = userData.businessEmail;
+
+// Add event listener to form submission
+document.getElementById('advertisementForm').addEventListener('submit', (event) => {
+event.preventDefault();
+// Get advertisement data from form
+const advertisementData = {
+name: document.getElementById('adName').value,
+description: document.getElementById('adDescription').value,
+category: document.getElementById('adCategory').value,
+image: document.getElementById('adImage').value
+};
+
+// Send advertisement for review
+sendForReview(advertisementData);
+});
+}
+
+// Helper function to send advertisement for review
+function sendForReview(advertisementData) {
+// Send advertisement to VIT team for review
+// Display success message
+alert('Advertisement submitted for review');
+}
+
+// Individual mode page
+function individualMode() {
+// Get user data from localStorage
+const userData = JSON.parse(localStorage.getItem('userData'));
+
+// Display welcome message
+document.getElementById('welcomeMessage').innerText = Welcome, ${userData.firstName} ${userData.lastName};
+
+// Add event listener to category selection
+document.getElementById('categorySelect').addEventListener('change', (event) => {
+const selectedCategory = event.target.value;
+// Display advertisements for selected category
+displayAdvertisements(selectedCategory);
+});
+}
+
+// Business mode page
+function businessMode() {
+// Get user data from localStorage
+const userData = JSON.parse(localStorage.getItem('userData'));
+
+// Display welcome message
+document.getElementById('welcomeMessage').innerText = Welcome, ${userData.businessName};
+
+// Add event listener to advertisement editing
+document.getElementById('editAdvertisement').addEventListener('click', () => {
+// Redirect to advertisement editor page
+window.location.href = 'editAdvertisement.html';
+});
+}
+
+// Helper function to display advertisements for a category
+function displayAdvertisements(category) {
+// Get advertisements for selected category
+const advertisements = getAdvertisements(category);
+
+// Display advertisements
+const advertisementsContainer = document.getElementById('advertisements');
+advertisementsContainer.innerHTML = '';
+for (let i = 0; i < advertisements.length; i++) {
+const advertisement = advertisements[i];
+const adElement = document.createElement('div');
+adElement.innerHTML = `
+
+<h2>${advertisement.name}</h2>
+<p>${advertisement.description}</p>
+<p>Category: ${advertisement.category}</p>
+<img src="${advertisement.image}" alt="Advertisement Image">
+`;
+advertisementsContainer.appendChild(adElement);
+}
+}
+// Helper function to get advertisements
+function getAdvertisements(category) {
+    // Make API request to get advertisements based on category
+    const advertisements = makeAPIRequest(`/advertisements?category=${category}`);
+  
+    // Render the advertisements
+    renderAdvertisements(advertisements);
+  }
+// Helper function to render a single advertisement
+function renderAdvertisement(advertisement) {
+    const adElement = document.createElement('div');
+    adElement.classList.add('advertisement');
+    
+    const titleElement = document.createElement('h2');
+    titleElement.textContent = advertisement.title;
+    
+    const descriptionElement = document.createElement('p');
+    descriptionElement.textContent = advertisement.description;
+    
+    const imageElement = document.createElement('img');
+    imageElement.src = advertisement.image;
+    
+    adElement.appendChild(titleElement);
+    adElement.appendChild(descriptionElement);
+    adElement.appendChild(imageElement);
+    
+    return adElement;
+    }
+    
+    // Helper function to render multiple advertisements
+    function renderAdvertisements(advertisements) {
+    const advertisementsContainer = document.getElementById('advertisements-container');
+    advertisementsContainer.innerHTML = '';
+    
+    advertisements.forEach(advertisement => {
+    const adElement = renderAdvertisement(advertisement);
+    advertisementsContainer.appendChild(adElement);
+    });
+    }
+    
+    // Function to handle user login
+    function handleLogin() {
+    const username = document.getElementById('username-input').value;
+    const password = document.getElementById('password-input').value;
+    
+    if (!isValidUsername(username)) {
+    alert('Please enter a valid username');
+    return;
+    }
+    
+    if (!isValidPassword(password)) {
+    alert('Please enter a valid password');
+    return;
+    }
+    
+    // Make API request to authenticate user
+    const isAuthenticated = makeAPIRequest('/authenticate', { username, password });
+    
+    if (isAuthenticated) {
+    // User is authenticated, redirect to home page
+    navigateToPage('home');
+    } else {
+    alert('Invalid username or password');
+    }
+    }
+    
+    // Function to handle user registration
+    function handleRegistration() {
+    const firstName = document.getElementById('first-name-input').value;
+    const lastName = document.getElementById('last-name-input').value;
+    const username = document.getElementById('username-input').value;
+    const email = document.getElementById('email-input').value;
+    const password = document.getElementById('password-input').value;
+    
+    if (!isValidName(firstName)) {
+    alert('Please enter a valid first name');
+    return;
+    }
+    
+    if (!isValidName(lastName)) {
+    alert('Please enter a valid last name');
+    return;
+    }
+    
+    if (!isValidUsername(username)) {
+    alert('Please enter a valid username');
+    return;
+    }
+    
+    if (!isValidEmail(email)) {
+    alert('Please enter a valid email');
+    return;
+    }
+    
+    if (!isValidPassword(password)) {
+    alert('Please enter a valid password');
+    return;
+    }
+    
+    // Make API request to register user
+    const isRegistered = makeAPIRequest('/register', { firstName, lastName, username, email, password });
+    
+    if (isRegistered) {
+    // User is registered, redirect to home page
+    navigateToPage('home');
+    } else {
+    alert('Registration failed');
+    }
+    }
+    
+    // Function to handle user logout
+    function handleLogout() {
+    // Make API request to log out user
+    makeAPIRequest('/logout');
+    
+    // Redirect to login page
+    navigateToPage('login');
+    }
+function handleSearch() {
+       const searchTerm = document.getElementById('search-input').value;
+    
+      // Make API request to search for businesses
+      const businesses = makeAPIRequest(`/businesses?search=${searchTerm}`);
+      
+      // Render the businesses
+      renderBusinesses(businesses);
+     }
+
+    // Helper function to render a single business
+    function renderBusiness(business) {
+    const businessElement = document.createElement('div');
+    businessElement.classList.add('business');
+    
+    const nameElement = document.createElement('h2');
+    nameElement.textContent = business.name;
+    
+    const descriptionElement = document.createElement('p');
+    descriptionElement.textContent = business.description;
+    
+    const imageElement = document.createElement('img');
+    imageElement.src = business.image;
+    
+    businessElement.appendChild(nameElement);
+    businessElement.appendChild(descriptionElement);
+    businessElement.appendChild(imageElement);
+    
+    return businessElement;
+    }
+    
+    // Helper function to render multiple businesses
+    function renderBusinesses(businesses) {
+    const businessesContainer = document.getElementById('businesses-container');
+    businessesContainer.innerHTML = '';
+    
+    businesses.forEach(business => {
+    const businessElement = renderBusiness(business);
+    businessesContainer.appendChild(businessElement);
+    });
+    }
+    
+    // Function to handle user profile editing
+    function handleEditProfile() {
+    const firstName = document.getElementById('first-name-input').value;
+    const lastName = document.getElementById('last-name-input').value;
+    const email = document.getElementById('email-input').value;
+    const password = document.getElementById('password-input').value;
+    
+    if (!isValidName(firstName)) {
+    alert('Please enter a valid first name');
+    return;
+    }
+    
+    if (!isValidName(lastName)) {
+    alert('Please enter a valid last name');
+    return;
+    }
+    
+    if (!isValidEmail(email)) {
+    alert('Please enter a valid email');
+    return;
+    }
+    
+    if (!isValidPassword(password)) {
+    alert('Please enter a valid password');
+    return;
+    }
+    
+    // Make API request to update user profile
+    const isUpdated = makeAPIRequest('/update-profile', { firstName, lastName, email, password });
+    
+    if (isUpdated) {
+    // User profile is updated, redirect to home page
+    navigateToPage('home');
+    } else {
+    alert('Failed to update user profile');
+    }
+    }
+    
+    // Function to handle user account deletion
+    function handleDeleteAccount() {
+    if (confirm('Are you sure you want to delete your account?')) {
+    // Make API request to delete user account
+    const isDeleted = makeAPIRequest('/delete-account');
+
+    if (isDeleted) {
+      // User account is deleted, redirect to login page
+      navigateToPage('login');
+    } else {
+      alert('Failed to delete user account');
+    }
+    }
+    }
+    
+    // Function to initialize the app
+    function init() {
+    // Add event listeners for navigation links
+    const navLinks = document.querySelectorAll('nav a');
+    navLinks.forEach(link => {
+    link.addEventListener('click', event => {
+    event.preventDefault();
+    const page = event.target.getAttribute('href').substring(1);
+    navigateToPage(page);
+    });
+    });
+    
+    // Add event listeners for login and registration forms
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', event => {
+    event.preventDefault();
+    handleLogin();
+    });
+    
+    const registrationForm = document.getElementById('registration-form');
+    registrationForm.addEventListener('submit', event => {
+    event.preventDefault();
+    handleRegistration();
+    });
+    
+    // Add event listener for logout button
+    const logoutButton = document.getElementById('logout-button');
+    logoutButton.addEventListener('click', handleLogout);
+    
+    // Add event listener for search form
+    const searchForm = document.getElementById('search-form');
+    searchForm.addEventListener('submit', event => {
+    event.preventDefault();
+    handleSearch();
+    });
+    
+    // Add event listener for profile editing form
+    const editProfileForm = document.getElementById('edit-profile-form');
+    editProfileForm.addEventListener('submit', event => {
+    event.preventDefault();
+    handleEditProfile();});
+
+    // Function to handle editing user profile
+    function handleEditProfile() {
+    const firstName = document.getElementById('first-name-input').value;
+    const lastName = document.getElementById('last-name-input').value;
+    const email = document.getElementById('email-input').value;
+    const password = document.getElementById('password-input').value;
+    
+    if (!isValidName(firstName)) {
+    alert('Please enter a valid first name');
+    return;
+    }
+    
+    if (!isValidName(lastName)) {
+    alert('Please enter a valid last name');
+    return;
+    }
+    
+    if (!isValidEmail(email)) {
+    alert('Please enter a valid email');
+    return;
+    }
+    
+    if (!isValidPassword(password)) {
+    alert('Please enter a valid password');
+    return;
+    }
+    
+    // Make API request to edit user profile
+    const isEdited = makeAPIRequest('/edit-profile', { firstName, lastName, email, password });
+    
+    if (isEdited) {
+    // Profile is edited successfully, redirect to profile page
+    navigateToPage('profile');
+    } else {
+    alert('Editing profile failed');
+    }
+    }
+    
+    // Helper function to check if a name is valid
+    function isValidName(name) {
+    return name.trim() !== '';
+    }
+    
+    // Helper function to check if a username is valid
+    function isValidUsername(username) {
+    return /^[a-zA-Z0-9]+$/.test(username);
+    }
+    
+    // Helper function to check if an email is valid
+    function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+.[^\s@]+$/.test(email);
+    }
+    
+    // Helper function to check if a password is valid
+    function isValidPassword(password) {
+    return password.length >= 8;
+    }// Helper function to check if a business name is valid
+function isValidBusinessName(name) {
+    return name.trim().length >= 3 && name.trim().length <= 50;
+    }
+    
+    // Helper function to check if a business description is valid
+    function isValidBusinessDescription(description) {
+    return description.trim().length >= 10 && description.trim().length <= 500;
+    }
+    
+    // Helper function to check if a business address is valid
+    function isValidBusinessAddress(address) {
+    return address.trim().length >= 10 && address.trim().length <= 100;
+    }
+    
+    // Helper function to check if a business phone number is valid
+    function isValidBusinessPhoneNumber(phoneNumber) {
+    return /^\d{10}$/.test(phoneNumber);
+    }
+    
+    // Helper function to check if a review title is valid
+    function isValidReviewTitle(title) {
+    return title.trim().length >= 5 && title.trim().length <= 100;
+    }
+    
+    // Helper function to check if a review description is valid
+    function isValidReviewDescription(description) {
+    return description.trim().length >= 10 && description.trim().length <= 500;
+    }
+    
+    // Helper function to check if a rating is valid
+    function isValidRating(rating) {
+    return rating >= 1 && rating <= 5;
+    }
+    
+    // Helper function to render a single review
+    function renderReview(review) {
+    const reviewElement = document.createElement('div');
+    reviewElement.classList.add('review');
+    
+    const titleElement = document.createElement('h3');
+    titleElement.textContent = review.title;
+    
+    const descriptionElement = document.createElement('p');
+    descriptionElement.textContent = review.description;
+    
+    const ratingElement = document.createElement('p');
+    ratingElement.textContent = Rating: ${review.rating};
+    
+    reviewElement.appendChild(titleElement);
+    reviewElement.appendChild(descriptionElement);
+    reviewElement.appendChild(ratingElement);
+    
+    return reviewElement;
+    }
+    
+    // Helper function to render multiple reviews
+    function renderReviews(reviews) {
+    const reviewsContainer = document.getElementById('reviews-container');
+    reviewsContainer.innerHTML = '';
+    
+    reviews.forEach(review => {
+    const reviewElement = renderReview(review);
+    reviewsContainer.appendChild(reviewElement);
+    });
+    }
+    
+    // Function to handle business creation
+    function handleBusinessCreation() {
+    const name = document.getElementById('name-input').value;
+    const description = document.getElementById('description-input').value;
+    const address = document.getElementById('address-input').value;
+    const phoneNumber = document.getElementById('phone-number-input').value;
+    
+    if (!isValidBusinessName(name)) {
+    alert('Please enter a valid business name');
+    return;
+    }
+    
+    if (!isValidBusinessDescription(description)) {
+    alert('Please enter a valid business description');
+    return;
+    }
+    
+    if (!isValidBusinessAddress(address)) {
+    alert('Please enter a valid business address');
+    return;
+    }
+    
+    if (!isValidBusinessPhoneNumber(phoneNumber)) {
+    alert('Please enter a valid business phone number');
+    return;
+    }
+    
+    // Make API request to create business
+    const isCreated = makeAPIRequest('/businesses', { name, description, address, phoneNumber });
+    
+    if (isCreated) {
+    // Business is created, redirect to business page
+    navigateToPage('business');
+    } else {
+    alert('Business creation failed');
+    }
+    }
+    
+    // Function to handle business editing
+    function handleBusinessEditing() {
+    const name = document.getElementById('name-input').value;
+    const description = document.getElementById('description-input').value;
+    const address = document.getElementById('address-input').value;
+    const phoneNumber = document.getElementById('phone-number-input').value;
+    
+    if (!isValidBusinessName(name)) {
+    alert('Please enter a valid business name');
+    return;
+    }
+    
+    if (!isValidBusinessDescription(description)) {
+    alert('Please enter a valid business description');return;
+}
+
+if (!isValidBusinessLocation(location)) {
+alert('Please enter a valid business location');
+return;
+}
+
+// Make API request to add the business
+const isAdded = makeAPIRequest('/add-business', { name, description, location });
+
+if (isAdded) {
+// Business is added, redirect to home page
+navigateToPage('home');
+} else {
+alert('Failed to add business');
+}
+}
+
+// Function to handle editing a business
+function handleEditBusiness() {
+const id = document.getElementById('business-id-input').value;
+const name = document.getElementById('business-name-input').value;
+const description = document.getElementById('business-description-input').value;
+const location = document.getElementById('business-location-input').value;
+
+if (!isValidBusinessName(name)) {
+alert('Please enter a valid business name');
+return;
+}
+
+if (!isValidBusinessDescription(description)) {
+alert('Please enter a valid business description');
+return;
+}
+
+if (!isValidBusinessLocation(location)) {
+alert('Please enter a valid business location');
+return;
+}
+
+// Make API request to edit the business
+const isEdited = makeAPIRequest(/edit-business/${id}, { name, description, location });
+
+if (isEdited) {
+// Business is edited, redirect to home page
+navigateToPage('home');
+} else {
+alert('Failed to edit business');
+}
+}
+
+// Function to handle deleting a business
+function handleDeleteBusiness() {
+const id = document.getElementById('business-id-input').value;
+
+// Make API request to delete the business
+const isDeleted = makeAPIRequest(/delete-business/${id});
+
+if (isDeleted) {
+// Business is deleted, redirect to home page
+navigateToPage('home');
+} else {
+alert('Failed to delete business');
+}
+}}
+
+// Function to handle editing a profile
+function handleEditProfile() {
+const firstName = document.getElementById('first-name-input').value;
+const lastName = document.getElementById('last-name-input').value;
+const email = document.getElementById('email-input').value;
+
+if (!isValidName(firstName)) {
+alert('Please enter a valid first name');
+return;
+}
+
+if (!isValidName(lastName)) {
+alert('Please enter a valid last name');
+return;
+}
+
+if (!isValidEmail(email)) {
+alert('Please enter a valid email');
+return;
+}
+
+// Make API request to edit the profile
+const isEdited = makeAPIRequest('/edit-profile', { firstName, lastName, email });
+
+if (isEdited) {
+// Profile is edited, redirect to home page
+navigateToPage('home');
+} else {
+alert('Failed to edit profile');
+}
+}
